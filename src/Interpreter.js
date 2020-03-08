@@ -15,6 +15,8 @@ const {
 const { RuntimeError, Return } = require('./Error');
 const Environment = require('./Environment');
 const LoxFunction = require('./LoxFunction');
+const LoxClass = require('./LoxClass');
+const LoxInstance = require('./LoxInstance');
 
 class Interpreter {
   constructor () {
@@ -159,6 +161,30 @@ class Interpreter {
     return callee.call(this, args);
   }
 
+  visitGetExpr (expr) {
+    const object = this.evaluate(expr.object);
+    if (object instanceof LoxInstance) {
+      return object.get(expr.name);
+    }
+
+    throw new RuntimeError(expr.name, 'Only instances have properties.');
+  }
+
+  visitSetExpr (expr) {
+    const object = this.evaluate(expr.object);
+
+    if (!(object instanceof LoxInstance)) {
+      throw new RuntimeError(expr.name, 'Only instances have fields.');
+    }
+
+    const value = this.evaluate(expr.value);
+    object.set(expr.name, value);
+  }
+
+  visitThisExpr (expr) {
+    return this.lookUpVariable(expr.keyword, expr);
+  }
+
   visitVariableExpr (expr) {
     return this.lookUpVariable(expr.name, expr);
   }
@@ -244,6 +270,19 @@ class Interpreter {
     if (stmt.value) value = this.evaluate(stmt.value);
 
     throw new Return(value);
+  }
+
+  visitClassStmt (stmt) {
+    this.environment.define(stmt.name.lexeme, null);
+    
+    const methods = new Map();
+    stmt.methods.forEach(method => {
+      const func = new LoxFunction(method, this.environment, method.name.lexeme === 'init');
+      methods.set(method.name.lexeme, func);
+    });
+
+    const klass = new LoxClass(stmt.name.lexeme, methods);
+    this.environment.assign(stmt.name, klass);
   }
 
   executeBlock (statements, environment) {

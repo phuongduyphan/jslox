@@ -1,4 +1,6 @@
 module.exports = {
   NONE: 'NONE',
-  FUNCTION: 'FUNCTION'
+  FUNCTION: 'FUNCTION',
+  METHOD: 'METHOD',
+  INITIALIZER: 'INITIALIZER'
 }

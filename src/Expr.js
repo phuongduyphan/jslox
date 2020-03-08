@@ -39,6 +39,42 @@ class CallExpr extends Expr {
   }
 }
 
+class GetExpr extends Expr {
+  constructor (object, name) {
+    super();
+    this.object = object;
+    this.name = name;
+  }
+
+  accept (visitor) {
+    return visitor.visitGetExpr(this);
+  }
+}
+
+class SetExpr extends Expr {
+  constructor (object, name, value) {
+    super();
+    this.object = object;
+    this.name = name;
+    this.value = value;
+  }
+
+  accept (visitor) {
+    return visitor.visitSetExpr(this);
+  }
+}
+
+class ThisExpr extends Expr {
+  constructor (keyword) {
+    super();
+    this.keyword = keyword;
+  }
+
+  accept (visitor) {
+    return visitor.visitThisExpr(this);
+  }
+}
+
 class GroupingExpr extends Expr {
   constructor (expression) {
     super();
@@ -103,6 +139,9 @@ module.exports = {
   AssignExpr,
   BinaryExpr,
   CallExpr,
+  GetExpr,
+  SetExpr,
+  ThisExpr,
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,

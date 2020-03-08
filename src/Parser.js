@@ -34,10 +34,12 @@ const {
   ELSE,
   OR,
   AND,
-  COMMA
+  COMMA,
+  DOT,
+  THIS
 } = require('./tokenType');
-const { BinaryExpr, UnaryExpr, LiteralExpr, GroupingExpr, VariableExpr, AssignExpr, LogicalExpr, CallExpr } = require('./Expr');
-const { PrintStmt, ExpressionStmt, VarStmt, BlockStmt, IfStmt, WhileStmt, FunctionStmt, ReturnStmt } = require('./Stmt');
+const { BinaryExpr, UnaryExpr, LiteralExpr, GroupingExpr, VariableExpr, AssignExpr, LogicalExpr, CallExpr, GetExpr, SetExpr, ThisExpr } = require('./Expr');
+const { PrintStmt, ExpressionStmt, VarStmt, BlockStmt, IfStmt, WhileStmt, FunctionStmt, ReturnStmt, ClassStmt } = require('./Stmt');
 const { ParseError } = require('./Error');
 
 class Parser {
@@ -58,6 +60,9 @@ class Parser {
 
   declaration () {
     try {
+      if (this.match(CLASS)) {
+        return this.classDeclaration();
+      }
       if (this.match(FUN)) {
         return this.function('function');
       }
@@ -69,7 +74,20 @@ class Parser {
       this.synchronize();
     }
   }
-  
+
+  classDeclaration () {
+    const name = this.consume(IDENTIFIER, 'Expect class name.');
+    this.consume(LEFT_BRACE, `Expect '{' before class body.`);
+
+    const methods = [];
+    while (!this.check(RIGHT_BRACE) && !this.isAtEnd) {
+      methods.push(this.function('method'));
+    }
+
+    this.consume(RIGHT_BRACE, `Expect '}' after class body.`);
+    return new ClassStmt(name, methods);
+  }
+
   function (kind) {
     const name = this.consume(IDENTIFIER, `Expect ${kind} name`);
     this.consume(LEFT_PAREN, `Expect '(' after ${kind} name`);
@@ -226,6 +244,8 @@ class Parser {
       if (expr instanceof VariableExpr) {
         const name = expr.name;
         return new AssignExpr(name, value);
+      } else if (expr instanceof GetExpr) {
+        return new SetExpr(expr.object, expr.name, value);
       }
 
       this.error(equals, 'Invalid assignment target.');
@@ -321,6 +341,9 @@ class Parser {
     while (true) {
       if (this.match(LEFT_PAREN)) {
         expr = this.finishCall(expr);
+      } else if (this.match(DOT)) {
+        const name = this.consume(IDENTIFIER, `Expect property name after '.'.`);
+        expr = new GetExpr(expr, name);
       } else {
         break;
       }
@@ -363,6 +386,10 @@ class Parser {
       const expr = this.expression();
       this.consume(RIGHT_PAREN, `Expect ')' after expression.`);
       return new GroupingExpr(expr);
+    }
+
+    if (this.match(THIS)) {
+      return new ThisExpr(this.previous());
     }
 
     if (this.match(IDENTIFIER)) {

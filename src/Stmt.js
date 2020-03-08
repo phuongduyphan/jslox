@@ -96,6 +96,18 @@ class ReturnStmt extends Stmt {
   }
 }
 
+class ClassStmt extends Stmt {
+  constructor (name, methods) {
+    super();
+    this.name = name;
+    this.methods = methods;
+  }
+
+  accept (visitor) {
+    return visitor.visitClassStmt(this);
+  }
+}
+
 
 module.exports = {
   Stmt,
@@ -107,4 +119,5 @@ module.exports = {
   BlockStmt,
   WhileStmt,
   ReturnStmt,
+  ClassStmt,
 }
