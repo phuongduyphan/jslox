@@ -50,6 +50,7 @@ defineAst(process.argv[2], 'Expr', [
   'Call: callee, paren, args',
   'Get: object, name',
   'Set: object, name, value',
+  'Super: keyword, method',
   'This: keyword',
   'Grouping: expression',
   'Literal: value',
@@ -67,5 +68,5 @@ defineAst(process.argv[2], 'Stmt', [
   'Block: statements',
   'While: condition, body',
   'Return: keyword, value',
-  'Class: name, methods'
+  'Class: name, methods, superclass'
 ]);

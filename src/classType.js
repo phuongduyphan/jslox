@@ -1,4 +1,5 @@
 module.exports = {
   NONE: 'NONE',
-  CLASS: 'CLASS'
+  CLASS: 'CLASS',
+  SUBCLASS: 'SUBCLASS'
 }

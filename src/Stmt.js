@@ -97,10 +97,11 @@ class ReturnStmt extends Stmt {
 }
 
 class ClassStmt extends Stmt {
-  constructor (name, methods) {
+  constructor (name, methods, superclass) {
     super();
     this.name = name;
     this.methods = methods;
+    this.superclass = superclass;
   }
 
   accept (visitor) {

@@ -64,6 +64,18 @@ class SetExpr extends Expr {
   }
 }
 
+class SuperExpr extends Expr {
+  constructor (keyword, method) {
+    super();
+    this.keyword = keyword;
+    this.method = method;
+  }
+
+  accept (visitor) {
+    return visitor.visitSuperExpr(this);
+  }
+}
+
 class ThisExpr extends Expr {
   constructor (keyword) {
     super();
@@ -141,6 +153,7 @@ module.exports = {
   CallExpr,
   GetExpr,
   SetExpr,
+  SuperExpr,
   ThisExpr,
   GroupingExpr,
   LiteralExpr,
