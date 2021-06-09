@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "memory.h": "c",
-    "vm.h": "c"
+    "vm.h": "c",
+    "type_traits": "cpp"
   }
 }
